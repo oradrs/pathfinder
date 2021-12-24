@@ -879,6 +879,7 @@ BEGIN
                 SELECT /*+ materialize */ pname_qksceserow name
                   FROM x$qksceses
                  WHERE sid_qksceserow = SYS_CONTEXT('USERENV', 'SID')
+                 and pname_qksceserow = 'optimizer_features_enable'
                 )
                 SELECT x.indx+1 num,
                        x.ksppinm name,
@@ -929,7 +930,7 @@ BEGIN
                         FROM x$kspvld_values
                        WHERE LOWER(name_kspvld_values) = i.name
                          AND LOWER(value_kspvld_values) <> i.value
-                       ORDER BY value_kspvld_values)
+                       ORDER BY ORDINAL_KSPVLD_VALUES)
             LOOP
               l_alter_session := l_alter_session_bck||' '''||j.value||''';';
               print_test(l_alter_session);
@@ -1060,7 +1061,7 @@ BEGIN
 
       END LOOP;
 
-      FOR i IN (SELECT * FROM v$session_fix_control WHERE session_id = SYS_CONTEXT('USERENV', 'SID') ORDER BY bugno) LOOP
+      FOR i IN (SELECT * FROM v$session_fix_control WHERE session_id = SYS_CONTEXT('USERENV', 'SID') and 1=2 ORDER BY bugno) LOOP
 
           IF i.value = 0 THEN
             l_alter_session := 'ALTER SESSION SET "_fix_control" = '''||i.bugno||':1'';';
@@ -1080,6 +1081,12 @@ END;
 /
 SPO OFF;
 SET TERM ON
+
+PRO
+PRO Are you ready to run driver script ? ( Press any key to contine / CTRL + C to stop ) ...
+PRO
+Pause
+
 @pathfinder_&&pathfinder_file_time._driver.sql
 
 COL plnfdn_end_time NEW_V plnfdn_end_time
